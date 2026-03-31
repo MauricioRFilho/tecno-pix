@@ -25,10 +25,20 @@ class WithdrawRequest
         }
 
         $amount = $payload['amount'] ?? null;
-        if (! is_numeric($amount)) {
+        $amountNormalized = null;
+        if (! is_string($amount) && ! is_int($amount) && ! is_float($amount)) {
             $errors['amount'][] = 'The amount must be a number.';
-        } elseif ((float) $amount <= 0) {
-            $errors['amount'][] = 'The amount must be greater than 0.';
+        } else {
+            $amountString = trim((string) $amount);
+
+            // Reject scientific notation and non-finite values to avoid INF/NAN entering business rules.
+            if (! preg_match('/^\d+(?:\.\d{1,2})?$/', $amountString)) {
+                $errors['amount'][] = 'The amount format is invalid.';
+            } elseif (bccomp($amountString, '0', 2) <= 0) {
+                $errors['amount'][] = 'The amount must be greater than 0.';
+            } else {
+                $amountNormalized = $this->normalizeAmount($amountString);
+            }
         }
 
         $pix = $payload['pix'] ?? null;
@@ -65,7 +75,7 @@ class WithdrawRequest
         return [
             'account_id' => $accountId,
             'method' => 'pix',
-            'amount' => number_format((float) $amount, 2, '.', ''),
+            'amount' => $amountNormalized ?? '0.00',
             'pix' => [
                 'type' => (string) $pix['type'],
                 'key' => trim((string) $pix['key']),
@@ -80,5 +90,15 @@ class WithdrawRequest
             '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i',
             $value
         );
+    }
+
+    private function normalizeAmount(string $amount): string
+    {
+        $parts = explode('.', $amount, 2);
+        if (count($parts) === 1) {
+            return $parts[0] . '.00';
+        }
+
+        return $parts[0] . '.' . str_pad($parts[1], 2, '0');
     }
 }

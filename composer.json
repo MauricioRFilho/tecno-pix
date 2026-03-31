@@ -82,6 +82,7 @@
         "test:part8": "co-phpunit --prepend test/bootstrap.php --colors=always --filter Part08",
         "test:part9": "co-phpunit --prepend test/bootstrap.php --colors=always --filter Part09",
         "test:part10": "co-phpunit --prepend test/bootstrap.php --colors=always --filter Part10",
+        "test:break": "co-phpunit --prepend test/bootstrap.php --colors=always --filter Break",
         "test:implemented": [
             "@test:part1",
             "@test:part2",
