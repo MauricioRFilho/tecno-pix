@@ -11,6 +11,7 @@ use App\Service\Exception\InvalidPixKeyException;
 use App\Service\Exception\InsufficientBalanceException;
 use App\Service\Exception\InvalidScheduleException;
 use App\Service\Exception\UnsupportedWithdrawMethodException;
+use App\Service\WithdrawProcessorDispatcher;
 use App\Service\WithdrawService;
 use Hyperf\Swagger\Annotation as OA;
 
@@ -85,7 +86,12 @@ class WithdrawController extends AbstractController
             ),
         ]
     )]
-    public function store(string $accountId, WithdrawRequest $withdrawRequest, WithdrawService $withdrawService)
+    public function store(
+        string $accountId,
+        WithdrawRequest $withdrawRequest,
+        WithdrawService $withdrawService,
+        WithdrawProcessorDispatcher $withdrawProcessorDispatcher
+    )
     {
         try {
             $payload = $withdrawRequest->validate($accountId, $this->request->all());
@@ -104,6 +110,10 @@ class WithdrawController extends AbstractController
             return $this->response->json(['message' => $exception->getMessage()])->withStatus(404);
         } catch (InsufficientBalanceException | InvalidScheduleException | UnsupportedWithdrawMethodException | InvalidPixKeyException $exception) {
             return $this->response->json(['message' => $exception->getMessage()])->withStatus(422);
+        }
+
+        if (! $withdraw['scheduled']) {
+            $withdrawProcessorDispatcher->dispatch($withdraw['id']);
         }
 
         return $this->response
