@@ -79,6 +79,7 @@
         "test:part5": "co-phpunit --prepend test/bootstrap.php --colors=always --filter Part05",
         "test:part6": "co-phpunit --prepend test/bootstrap.php --colors=always --filter Part06",
         "test:part7": "co-phpunit --prepend test/bootstrap.php --colors=always --filter Part07",
+        "test:part8": "co-phpunit --prepend test/bootstrap.php --colors=always --filter Part08",
         "test:implemented": [
             "@test:part1",
             "@test:part2",
@@ -86,7 +87,8 @@
             "@test:part4",
             "@test:part5",
             "@test:part6",
-            "@test:part7"
+            "@test:part7",
+            "@test:part8"
         ],
         "cs-fix": "php-cs-fixer fix $1",
         "analyse": "phpstan analyse --memory-limit 300M",
