@@ -70,6 +70,12 @@
             "rm -rf runtime/container"
         ],
         "test": "co-phpunit --prepend test/bootstrap.php --colors=always",
+        "test:part1": "co-phpunit --prepend test/bootstrap.php --colors=always --filter Part01",
+        "test:part2": "co-phpunit --prepend test/bootstrap.php --colors=always --filter Part02",
+        "test:implemented": [
+            "@test:part1",
+            "@test:part2"
+        ],
         "cs-fix": "php-cs-fixer fix $1",
         "analyse": "phpstan analyse --memory-limit 300M",
         "start": [
