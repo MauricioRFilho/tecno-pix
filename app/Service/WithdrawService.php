@@ -11,11 +11,18 @@ use App\Service\Exception\InsufficientBalanceException;
 use App\Service\Exception\InvalidScheduleException;
 use App\Support\Uuid;
 use Hyperf\DbConnection\Db;
+use Hyperf\Logger\LoggerFactory;
+use Psr\Log\LoggerInterface;
 
 class WithdrawService
 {
-    public function __construct(private readonly WithdrawMethodFactory $withdrawMethodFactory)
-    {
+    private LoggerInterface $logger;
+
+    public function __construct(
+        private readonly WithdrawMethodFactory $withdrawMethodFactory,
+        LoggerFactory $loggerFactory
+    ) {
+        $this->logger = $loggerFactory->get('withdraw');
     }
 
     /**
@@ -76,6 +83,16 @@ class WithdrawService
                 'scheduled_for' => $scheduledFor,
             ];
         });
+
+        $this->logger->info('withdraw.created', [
+            'withdraw_id' => $created['id'],
+            'account_id' => $created['account_id'],
+            'method' => strtoupper($created['method']),
+            'amount' => $created['amount'],
+            'scheduled' => $created['scheduled'],
+            'scheduled_for' => $created['scheduled_for'],
+            'status' => 'accepted',
+        ]);
 
         return $created;
     }

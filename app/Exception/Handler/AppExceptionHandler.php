@@ -26,9 +26,23 @@ class AppExceptionHandler extends ExceptionHandler
 
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        $this->logger->error(sprintf('%s[%s] in %s', $throwable->getMessage(), $throwable->getLine(), $throwable->getFile()));
+        $this->logger->error('app.exception', [
+            'message' => $throwable->getMessage(),
+            'line' => $throwable->getLine(),
+            'file' => $throwable->getFile(),
+        ]);
         $this->logger->error($throwable->getTraceAsString());
-        return $response->withHeader('Server', 'Hyperf')->withStatus(500)->withBody(new SwooleStream('Internal Server Error.'));
+
+        $payload = json_encode([
+            'message' => 'Internal Server Error.',
+            'code' => 'internal_error',
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        return $response
+            ->withHeader('Server', 'Hyperf')
+            ->withHeader('Content-Type', 'application/json; charset=utf-8')
+            ->withStatus(500)
+            ->withBody(new SwooleStream($payload === false ? '{"message":"Internal Server Error.","code":"internal_error"}' : $payload));
     }
 
     public function isValid(Throwable $throwable): bool

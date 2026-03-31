@@ -67,8 +67,19 @@ class WithdrawCompletedListener implements ListenerInterface
                         ->to($recipient)
                         ->subject(sprintf('Saque PIX concluido %s', (string) $withdraw->id));
                 });
+
+            $this->logger->info('withdraw.email_sent', [
+                'withdraw_id' => (string) $withdraw->id,
+                'recipient' => $recipient,
+                'status' => 'success',
+            ]);
         } catch (\Throwable $throwable) {
-            $this->logger->error(sprintf('Failed to send withdraw notification: %s', $throwable->getMessage()));
+            $this->logger->error('withdraw.email_failed', [
+                'withdraw_id' => (string) $withdraw->id,
+                'recipient' => $recipient,
+                'reason' => $throwable->getMessage(),
+                'status' => 'failed',
+            ]);
         }
     }
 }

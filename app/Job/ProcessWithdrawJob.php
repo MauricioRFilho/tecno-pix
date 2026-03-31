@@ -8,12 +8,19 @@ use App\Event\WithdrawCompletedEvent;
 use App\Model\Account;
 use App\Model\AccountWithdraw;
 use Hyperf\DbConnection\Db;
+use Hyperf\Logger\LoggerFactory;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 
 class ProcessWithdrawJob
 {
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    private LoggerInterface $logger;
+
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        LoggerFactory $loggerFactory
+    ) {
+        $this->logger = $loggerFactory->get('withdraw');
     }
 
     public function handle(string $withdrawId): void
@@ -25,6 +32,11 @@ class ProcessWithdrawJob
                 ->first();
 
             if (! $withdraw instanceof AccountWithdraw) {
+                $this->logger->warning('withdraw.failed', [
+                    'withdraw_id' => $withdrawId,
+                    'reason' => 'Withdraw not found at processing.',
+                    'status' => 'failed',
+                ]);
                 return;
             }
 
@@ -46,6 +58,13 @@ class ProcessWithdrawJob
                 $withdraw->error_reason = 'Account not found at processing.';
                 $withdraw->processed_at = date('Y-m-d H:i:s');
                 $withdraw->save();
+                $this->logger->warning('withdraw.failed', [
+                    'withdraw_id' => (string) $withdraw->id,
+                    'account_id' => (string) $withdraw->account_id,
+                    'amount' => (string) $withdraw->amount,
+                    'reason' => 'Account not found at processing.',
+                    'status' => 'failed',
+                ]);
                 return;
             }
 
@@ -54,6 +73,13 @@ class ProcessWithdrawJob
                 $withdraw->error_reason = 'Insufficient balance at processing.';
                 $withdraw->processed_at = date('Y-m-d H:i:s');
                 $withdraw->save();
+                $this->logger->warning('withdraw.failed', [
+                    'withdraw_id' => (string) $withdraw->id,
+                    'account_id' => (string) $withdraw->account_id,
+                    'amount' => (string) $withdraw->amount,
+                    'reason' => 'Insufficient balance at processing.',
+                    'status' => 'failed',
+                ]);
                 return;
             }
 
@@ -65,6 +91,15 @@ class ProcessWithdrawJob
             $withdraw->error_reason = null;
             $withdraw->processed_at = date('Y-m-d H:i:s');
             $withdraw->save();
+
+            $this->logger->info('withdraw.processed', [
+                'withdraw_id' => (string) $withdraw->id,
+                'account_id' => (string) $withdraw->account_id,
+                'amount' => (string) $withdraw->amount,
+                'method' => strtoupper((string) $withdraw->method),
+                'scheduled' => (bool) $withdraw->scheduled,
+                'status' => 'success',
+            ]);
 
             $this->eventDispatcher->dispatch(new WithdrawCompletedEvent((string) $withdraw->id));
         });
