@@ -7,8 +7,10 @@ namespace App\Controller;
 use App\Request\WithdrawRequest;
 use App\Request\WithdrawValidationException;
 use App\Service\Exception\AccountNotFoundException;
+use App\Service\Exception\InvalidPixKeyException;
 use App\Service\Exception\InsufficientBalanceException;
 use App\Service\Exception\InvalidScheduleException;
+use App\Service\Exception\UnsupportedWithdrawMethodException;
 use App\Service\WithdrawService;
 use Hyperf\Swagger\Annotation as OA;
 
@@ -100,7 +102,7 @@ class WithdrawController extends AbstractController
             $withdraw = $withdrawService->create($payload);
         } catch (AccountNotFoundException $exception) {
             return $this->response->json(['message' => $exception->getMessage()])->withStatus(404);
-        } catch (InsufficientBalanceException | InvalidScheduleException $exception) {
+        } catch (InsufficientBalanceException | InvalidScheduleException | UnsupportedWithdrawMethodException | InvalidPixKeyException $exception) {
             return $this->response->json(['message' => $exception->getMessage()])->withStatus(422);
         }
 

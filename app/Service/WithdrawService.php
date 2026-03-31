@@ -6,7 +6,6 @@ namespace App\Service;
 
 use App\Model\Account;
 use App\Model\AccountWithdraw;
-use App\Model\AccountWithdrawPix;
 use App\Service\Exception\AccountNotFoundException;
 use App\Service\Exception\InsufficientBalanceException;
 use App\Service\Exception\InvalidScheduleException;
@@ -15,6 +14,10 @@ use Hyperf\DbConnection\Db;
 
 class WithdrawService
 {
+    public function __construct(private readonly WithdrawMethodFactory $withdrawMethodFactory)
+    {
+    }
+
     /**
      * @param array{account_id:string, method:string, amount:string, pix:array{type:string,key:string}, schedule:?string} $payload
      * @return array{id:string, account_id:string, method:string, amount:string, scheduled:bool, scheduled_for:?string}
@@ -30,6 +33,9 @@ class WithdrawService
             throw new InsufficientBalanceException();
         }
 
+        $withdrawMethod = $this->withdrawMethodFactory->make($payload['method']);
+        $withdrawMethod->validate($payload);
+
         $scheduledFor = null;
         $isScheduled = false;
         if ($payload['schedule'] !== null) {
@@ -43,7 +49,7 @@ class WithdrawService
         }
 
         /** @var array{id:string, account_id:string, method:string, amount:string, scheduled:bool, scheduled_for:?string} $created */
-        $created = Db::transaction(function () use ($payload, $isScheduled, $scheduledFor): array {
+        $created = Db::transaction(function () use ($payload, $isScheduled, $scheduledFor, $withdrawMethod): array {
             $withdrawId = Uuid::v4();
 
             AccountWithdraw::query()->create([
@@ -59,11 +65,7 @@ class WithdrawService
                 'processed_at' => null,
             ]);
 
-            AccountWithdrawPix::query()->create([
-                'account_withdraw_id' => $withdrawId,
-                'type' => $payload['pix']['type'],
-                'key' => $payload['pix']['key'],
-            ]);
+            $withdrawMethod->persistDetails($withdrawId, $payload);
 
             return [
                 'id' => $withdrawId,
