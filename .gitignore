@@ -1,0 +1,11 @@
+.DS_Store
+.idea/
+.vscode/
+.env
+.env.local
+.phpunit.result.cache
+/vendor/
+/runtime/
+/coverage/
+/docker/mysql/data/
+
