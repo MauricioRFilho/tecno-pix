@@ -1,27 +1,13 @@
-FROM php:8.3-cli-alpine
+FROM hyperf/hyperf:8.4-alpine-v3.21-swoole
 
-RUN apk add --no-cache \
-    $PHPIZE_DEPS \
-    bash \
-    brotli-dev \
-    curl \
-    git \
-    linux-headers \
-    mysql-client \
-    openssl-dev \
-    oniguruma-dev \
-    supervisor \
-    unzip
-
-RUN docker-php-ext-install \
-    bcmath \
-    pcntl \
-    pdo_mysql
-RUN docker-php-ext-install sockets
-RUN pecl install redis swoole \
-    && docker-php-ext-enable redis swoole
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN set -ex \
+    && apk add --no-cache \
+        bash \
+        mysql-client \
+        supervisor \
+    && php -v \
+    && php -m \
+    && php --ri swoole
 
 WORKDIR /var/www/html
 
