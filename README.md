@@ -16,6 +16,7 @@ docker compose up --build
 ## Serviços
 
 - API Hyperf: `http://localhost:9501`
+- Swagger UI: `http://localhost:9500/swagger`
 - MySQL: `localhost:3306`
 - Mailhog: `http://localhost:8025`
 
@@ -26,4 +27,3 @@ O detalhamento técnico e a decomposição das entregas estão em [PLANEJAMENTO.
 ## Próximo passo
 
 Implementar a Parte 2 do planejamento: banco de dados, models e seed inicial.
-

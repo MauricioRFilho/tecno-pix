@@ -5,6 +5,7 @@ services:
       dockerfile: docker/hyperf/Dockerfile
     container_name: tecno-pix-app
     ports:
+      - "9500:9500"
       - "${APP_PORT:-9501}:9501"
     depends_on:
       mysql:
