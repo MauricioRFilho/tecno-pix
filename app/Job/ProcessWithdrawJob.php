@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace App\Job;
 
+use App\Event\WithdrawCompletedEvent;
 use App\Model\Account;
 use App\Model\AccountWithdraw;
 use Hyperf\DbConnection\Db;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 class ProcessWithdrawJob
 {
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
+    {
+    }
+
     public function handle(string $withdrawId): void
     {
         Db::transaction(function () use ($withdrawId): void {
@@ -59,6 +65,8 @@ class ProcessWithdrawJob
             $withdraw->error_reason = null;
             $withdraw->processed_at = date('Y-m-d H:i:s');
             $withdraw->save();
+
+            $this->eventDispatcher->dispatch(new WithdrawCompletedEvent((string) $withdraw->id));
         });
     }
 }
