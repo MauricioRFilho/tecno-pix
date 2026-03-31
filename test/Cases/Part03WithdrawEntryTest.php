@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace HyperfTest\Cases;
 
+use App\Model\Account;
 use App\Support\Uuid;
 use Hyperf\Testing\TestCase;
 
@@ -11,7 +12,12 @@ class Part03WithdrawEntryTest extends TestCase
 {
     public function testPart03AcceptsValidWithdrawPayload(): void
     {
-        $accountId = Uuid::v4();
+        $account = Account::query()->create([
+            'id' => Uuid::v4(),
+            'name' => 'Conta teste Parte 3',
+            'balance' => '500.00',
+        ]);
+        $accountId = $account->id;
 
         $response = $this->post(
             sprintf('/account/%s/balance/withdraw', $accountId),
@@ -34,6 +40,8 @@ class Part03WithdrawEntryTest extends TestCase
                 'amount' => '150.75',
                 'scheduled' => false,
             ]);
+
+        Account::query()->where('id', $accountId)->delete();
     }
 
     public function testPart03Returns422WhenPayloadIsInvalid(): void
