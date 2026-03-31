@@ -1,34 +1,29 @@
 # Tecno Pix
 
-API REST para saque PIX imediato e agendado, construída em PHP com Hyperf 3.
+API REST para saque PIX imediato e agendado, construída com PHP 8.3 e Hyperf 3.
 
 ## Status
 
-Projeto em fase inicial de estruturação.
+Base inicial do projeto criada com infraestrutura Docker e skeleton do Hyperf integrado ao repositório.
+
+## Subindo o ambiente
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+## Serviços
+
+- API Hyperf: `http://localhost:9501`
+- MySQL: `localhost:3306`
+- Mailhog: `http://localhost:8025`
 
 ## Planejamento
 
-O detalhamento técnico e a decomposição por partes estão em [PLANEJAMENTO.md](./PLANEJAMENTO.md).
+O detalhamento técnico e a decomposição das entregas estão em [PLANEJAMENTO.md](./PLANEJAMENTO.md).
 
-## Estrutura inicial
+## Próximo passo
 
-```text
-.
-├── app/
-├── config/
-├── docker/
-├── migrations/
-├── storage/
-├── tests/
-├── .env.example
-├── .gitignore
-├── PLANEJAMENTO.md
-└── README.md
-```
-
-## Próximos passos
-
-1. Subir a base Docker do projeto.
-2. Criar a estrutura mínima da aplicação Hyperf.
-3. Implementar banco, endpoint e fluxo de saque parte a parte.
+Implementar a Parte 2 do planejamento: banco de dados, models e seed inicial.
 

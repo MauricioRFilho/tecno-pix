@@ -1,0 +1,8 @@
+**
+!app/
+!bin/
+!config/
+!composer.*
+!docker/
+!docker/**
+!.env.example

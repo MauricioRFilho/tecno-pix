@@ -1,0 +1,79 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/hyperf/Dockerfile
+    container_name: tecno-pix-app
+    ports:
+      - "${APP_PORT:-9501}:9501"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      APP_ENV: ${APP_ENV:-dev}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      APP_PORT: ${APP_PORT:-9501}
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_DATABASE: ${DB_DATABASE:-tecno_pix}
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-secret}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_AUTH: ${REDIS_AUTH:-}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_DB: ${REDIS_DB:-0}
+      MAIL_HOST: ${MAIL_HOST:-mailhog}
+      MAIL_PORT: ${MAIL_PORT:-1025}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-no-reply@tecnopix.local}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Tecno Pix}
+    volumes:
+      - .:/var/www/html
+    networks:
+      - pix-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: tecno-pix-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-tecno_pix}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD:-secret}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - pix-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: tecno-pix-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - pix-network
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: tecno-pix-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - pix-network
+
+networks:
+  pix-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
