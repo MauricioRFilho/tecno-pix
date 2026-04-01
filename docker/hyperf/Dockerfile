@@ -14,7 +14,9 @@ WORKDIR /var/www/html
 COPY docker/hyperf/supervisord.conf /etc/supervisord.conf
 COPY docker/hyperf/entrypoint.sh /entrypoint.sh
 
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh \
+    && sed -i 's/\r$//' /entrypoint.sh \
+    && sed -i 's/\r$//' /etc/supervisord.conf
 
 EXPOSE 9501
 
