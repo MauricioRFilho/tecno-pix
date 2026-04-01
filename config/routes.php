@@ -10,7 +10,9 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 use Hyperf\HttpServer\Router\Router;
+use App\Controller\BrandingController;
+use App\Controller\DashboardController;
 
-Router::get('/favicon.ico', function () {
-    return '';
-});
+Router::get('/favicon.ico', [BrandingController::class, 'favicon']);
+
+Router::get('/dashboard', [DashboardController::class, 'index']);

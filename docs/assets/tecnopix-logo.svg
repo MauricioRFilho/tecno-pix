@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 280" role="img" aria-label="Tecno Pix">
+  <g fill="#e8de5f">
+    <circle cx="110" cy="46" r="42"/>
+    <path d="M22 82L0 66v48l72 46v114l38-22V138L46 100v-18z"/>
+    <path d="M198 82l22-16v48l-72 46v114l-38-22V138l64-38v-18z"/>
+  </g>
+  <text x="250" y="185" font-family="Verdana, Arial, sans-serif" font-size="148" letter-spacing="10" fill="#e8de5f">TECNOPIX</text>
+</svg>

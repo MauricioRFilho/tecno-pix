@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tecno Pix Console</title>
+  <link rel="icon" href="/favicon.ico" type="image/svg+xml">
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --ink: #1d2a3b;
+      --sub: #4a5b72;
+      --line: #d7e1ee;
+      --brand: #1463ff;
+      --brand-2: #0e4ccc;
+      --ok: #0f8a42;
+      --err: #b3261e;
+      --warn: #b27300;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top right, #dfe9ff 0, transparent 50%), var(--bg);
+      color: var(--ink);
+    }
+    .wrap { max-width: 1100px; margin: 24px auto 36px; padding: 0 16px; }
+    .brand-logo {
+      width: min(420px, 100%);
+      display: block;
+      margin-bottom: 8px;
+    }
+    h1 { margin: 0 0 6px; font-size: 28px; }
+    .sub { margin: 0 0 20px; color: var(--sub); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      grid-column: span 12;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(24, 54, 100, 0.06);
+    }
+    .card h2 { margin: 0 0 14px; font-size: 18px; }
+    .card p { margin: 0 0 12px; color: var(--sub); }
+    .form {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+    .form .field { grid-column: span 12; }
+    .form .field.half { grid-column: span 6; }
+    .form .field.third { grid-column: span 4; }
+    label { display: block; margin: 0 0 6px; font-size: 13px; color: var(--sub); }
+    input, select {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 0 11px;
+      font-size: 14px;
+      color: var(--ink);
+      background: #fff;
+    }
+    button {
+      height: 40px;
+      border: 0;
+      border-radius: 9px;
+      padding: 0 14px;
+      font-weight: 600;
+      color: #fff;
+      background: var(--brand);
+      cursor: pointer;
+    }
+    button:hover { background: var(--brand-2); }
+    button.secondary { background: #64748b; }
+    .msg {
+      margin-top: 10px;
+      font-size: 13px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      display: none;
+    }
+    .msg.show { display: block; }
+    .msg.ok { background: #e9f8ef; color: var(--ok); border: 1px solid #bbebcd; }
+    .msg.err { background: #fff0ef; color: var(--err); border: 1px solid #f7c5c0; }
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; min-width: 860px; background: #fff; }
+    th, td {
+      text-align: left;
+      padding: 10px 11px;
+      border-bottom: 1px solid #edf2f8;
+      vertical-align: top;
+      font-size: 13px;
+    }
+    th { background: #f8fbff; color: #334155; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .chip.ok { background: #e8f8ee; color: var(--ok); }
+    .chip.wait { background: #fff7e6; color: var(--warn); }
+    .chip.err { background: #fff0ef; color: var(--err); }
+    .row-actions button { height: 30px; font-size: 12px; padding: 0 10px; }
+    @media (min-width: 900px) {
+      .half-col { grid-column: span 6; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <svg class="brand-logo" viewBox="0 0 1200 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tecno Pix">
+      <g fill="#e8de5f">
+        <circle cx="110" cy="46" r="42"/>
+        <path d="M22 82L0 66v48l72 46v114l38-22V138L46 100v-18z"/>
+        <path d="M198 82l22-16v48l-72 46v114l-38-22V138l64-38v-18z"/>
+      </g>
+      <text x="250" y="185" font-family="Verdana, Arial, sans-serif" font-size="148" letter-spacing="10" fill="#e8de5f">TECNOPIX</text>
+    </svg>
+    <h1>Tecno Pix Console</h1>
+    <p class="sub">Painel visual para contas e operações de saque PIX.</p>
+
+    <div class="grid">
+      <section class="card half-col">
+        <h2>Criar Conta</h2>
+        <form id="account-form" class="form">
+          <div class="field half">
+            <label for="account-name">Nome</label>
+            <input id="account-name" name="name" placeholder="Conta do Mauricio" required>
+          </div>
+          <div class="field half">
+            <label for="account-balance">Saldo inicial</label>
+            <input id="account-balance" name="balance" value="1000.00" required>
+          </div>
+          <div class="field">
+            <button type="submit">Criar conta</button>
+          </div>
+        </form>
+        <div id="account-msg" class="msg"></div>
+      </section>
+
+      <section class="card half-col">
+        <h2>Novo Saque PIX</h2>
+        <form id="withdraw-form" class="form">
+          <div class="field">
+            <label for="withdraw-account">Conta</label>
+            <select id="withdraw-account" required></select>
+          </div>
+          <div class="field third">
+            <label for="withdraw-amount">Valor</label>
+            <input id="withdraw-amount" value="10" required>
+          </div>
+          <div class="field third">
+            <label for="withdraw-pix-type">Tipo PIX</label>
+            <select id="withdraw-pix-type">
+              <option value="email">email</option>
+              <option value="cpf">cpf</option>
+              <option value="cnpj">cnpj</option>
+              <option value="phone">phone</option>
+              <option value="random">random</option>
+            </select>
+          </div>
+          <div class="field third">
+            <label for="withdraw-schedule">Agendamento (opcional)</label>
+            <input id="withdraw-schedule" placeholder="2026-04-01 12:30:00">
+          </div>
+          <div class="field">
+            <label for="withdraw-pix-key">Chave PIX</label>
+            <input id="withdraw-pix-key" value="cliente@example.com" required>
+          </div>
+          <div class="field">
+            <button type="submit">Solicitar saque</button>
+          </div>
+        </form>
+        <div id="withdraw-msg" class="msg"></div>
+      </section>
+
+      <section class="card">
+        <h2>Contas (Users)</h2>
+        <p>Lista de contas disponíveis para operação.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Saldo</th>
+                <th>Criada em</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody id="accounts-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Operações</h2>
+        <p>Histórico dos últimos saques.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Conta</th>
+                <th>Valor</th>
+                <th>PIX</th>
+                <th>Status</th>
+                <th>Erro</th>
+                <th>Criado em</th>
+              </tr>
+            </thead>
+            <tbody id="operations-tbody"></tbody>
+          </table>
+        </div>
+        <div style="margin-top: 10px;">
+          <button id="refresh-btn" class="secondary" type="button">Atualizar operações</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const accountForm = document.getElementById('account-form');
+    const withdrawForm = document.getElementById('withdraw-form');
+    const accountMsg = document.getElementById('account-msg');
+    const withdrawMsg = document.getElementById('withdraw-msg');
+    const accountsTbody = document.getElementById('accounts-tbody');
+    const operationsTbody = document.getElementById('operations-tbody');
+    const withdrawAccount = document.getElementById('withdraw-account');
+    const refreshBtn = document.getElementById('refresh-btn');
+
+    const showMsg = (el, type, text) => {
+      el.className = `msg show ${type}`;
+      el.textContent = text;
+    };
+
+    const escapeHtml = (value) => String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+
+    const parseError = async (response) => {
+      try {
+        const data = await response.json();
+        if (data?.message) {
+          return data.message;
+        }
+      } catch (_) {
+      }
+      return `Erro HTTP ${response.status}`;
+    };
+
+    async function loadAccounts() {
+      const response = await fetch('/accounts');
+      if (!response.ok) {
+        throw new Error(await parseError(response));
+      }
+      const accounts = await response.json();
+
+      accountsTbody.innerHTML = accounts.map((item) => `
+        <tr>
+          <td><code>${escapeHtml(item.id)}</code></td>
+          <td>${escapeHtml(item.name)}</td>
+          <td>${escapeHtml(item.balance)}</td>
+          <td>${escapeHtml(item.created_at ?? '-')}</td>
+          <td class="row-actions"><button type="button" data-account-id="${escapeHtml(item.id)}">Usar no saque</button></td>
+        </tr>
+      `).join('');
+
+      withdrawAccount.innerHTML = accounts.map((item) =>
+        `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} | Saldo: ${escapeHtml(item.balance)} | ${escapeHtml(item.id)}</option>`
+      ).join('');
+
+      for (const button of accountsTbody.querySelectorAll('button[data-account-id]')) {
+        button.addEventListener('click', () => {
+          withdrawAccount.value = button.getAttribute('data-account-id');
+          showMsg(withdrawMsg, 'ok', 'Conta selecionada para o próximo saque.');
+        });
+      }
+    }
+
+    async function loadOperations() {
+      const response = await fetch('/operations?limit=40');
+      if (!response.ok) {
+        throw new Error(await parseError(response));
+      }
+      const operations = await response.json();
+
+      operationsTbody.innerHTML = operations.map((item) => {
+        const statusChip = item.error
+          ? '<span class="chip err">erro</span>'
+          : item.done
+            ? '<span class="chip ok">concluído</span>'
+            : '<span class="chip wait">pendente</span>';
+        const pix = item.pix ? `${escapeHtml(item.pix.type)}: ${escapeHtml(item.pix.key)}` : '-';
+        return `
+          <tr>
+            <td><code>${escapeHtml(item.id)}</code></td>
+            <td><code>${escapeHtml(item.account_id)}</code></td>
+            <td>${escapeHtml(item.amount)}</td>
+            <td>${pix}</td>
+            <td>${statusChip}</td>
+            <td>${escapeHtml(item.error_reason ?? '-')}</td>
+            <td>${escapeHtml(item.created_at ?? '-')}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    accountForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      showMsg(accountMsg, 'ok', 'Criando conta...');
+      const payload = {
+        name: document.getElementById('account-name').value.trim(),
+        balance: document.getElementById('account-balance').value.trim(),
+      };
+
+      try {
+        const response = await fetch('/accounts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+          throw new Error(await parseError(response));
+        }
+        const data = await response.json();
+        showMsg(accountMsg, 'ok', `Conta criada com sucesso: ${data.id}`);
+        accountForm.reset();
+        document.getElementById('account-balance').value = '1000.00';
+        await loadAccounts();
+      } catch (error) {
+        showMsg(accountMsg, 'err', error.message);
+      }
+    });
+
+    withdrawForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      showMsg(withdrawMsg, 'ok', 'Enviando solicitação de saque...');
+      const accountId = withdrawAccount.value;
+      const payload = {
+        method: 'pix',
+        amount: document.getElementById('withdraw-amount').value.trim(),
+        pix: {
+          type: document.getElementById('withdraw-pix-type').value,
+          key: document.getElementById('withdraw-pix-key').value.trim(),
+        },
+      };
+      const schedule = document.getElementById('withdraw-schedule').value.trim();
+      if (schedule !== '') {
+        payload.schedule = schedule;
+      }
+
+      try {
+        const response = await fetch(`/account/${accountId}/balance/withdraw`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+          throw new Error(await parseError(response));
+        }
+        const data = await response.json();
+        showMsg(withdrawMsg, 'ok', `Saque aceito: ${data.id}`);
+        document.getElementById('withdraw-schedule').value = '';
+        await loadOperations();
+        setTimeout(loadOperations, 800);
+      } catch (error) {
+        showMsg(withdrawMsg, 'err', error.message);
+      }
+    });
+
+    refreshBtn.addEventListener('click', async () => {
+      try {
+        await loadOperations();
+        showMsg(withdrawMsg, 'ok', 'Operações atualizadas.');
+      } catch (error) {
+        showMsg(withdrawMsg, 'err', error.message);
+      }
+    });
+
+    async function bootstrap() {
+      try {
+        await loadAccounts();
+        await loadOperations();
+      } catch (error) {
+        showMsg(withdrawMsg, 'err', error.message);
+      }
+    }
+
+    bootstrap();
+  </script>
+</body>
+</html>

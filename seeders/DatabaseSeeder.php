@@ -14,10 +14,19 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        Account::query()->create([
-            'id' => Uuid::v4(),
-            'name' => 'Conta Demo Tecno Pix',
-            'balance' => '1000.00',
-        ]);
+        $accounts = [
+            ['name' => 'Conta Demo Mauricio', 'balance' => '1500.00'],
+            ['name' => 'Conta Demo Comercial', 'balance' => '2300.50'],
+            ['name' => 'Conta Demo Operacional', 'balance' => '980.75'],
+            ['name' => 'Conta Demo Reserva', 'balance' => '5000.00'],
+        ];
+
+        foreach ($accounts as $account) {
+            Account::query()->create([
+                'id' => Uuid::v4(),
+                'name' => $account['name'],
+                'balance' => $account['balance'],
+            ]);
+        }
     }
 }

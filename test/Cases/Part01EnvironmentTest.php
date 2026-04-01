@@ -13,7 +13,9 @@ class Part01EnvironmentTest extends TestCase
     {
         $this->get('/')
             ->assertOk()
-            ->assertJsonFragment(['message' => 'Hello Hyperf.']);
+            ->assertSee('Tecno Pix')
+            ->assertSee('/swagger')
+            ->assertSee('/dashboard');
     }
 
     public function testPart01SwaggerAndSpecEndpointsAreReachable(): void

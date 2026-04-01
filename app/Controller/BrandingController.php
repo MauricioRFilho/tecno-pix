@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controller;
+
+class BrandingController extends AbstractController
+{
+    public function favicon()
+    {
+        $svg = <<<'SVG'
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="8" fill="#e8de5f"/>
+  <circle cx="32" cy="16" r="6" fill="#0f172a"/>
+  <path d="M32 24c-5 0-9 3-9 8v12h4V33c0-2 2-4 5-4s5 2 5 4v11h4V32c0-5-4-8-9-8z" fill="#0f172a"/>
+  <path d="M22 30l-8-5v4l7 4v11h3V30h-2zM42 30l8-5v4l-7 4v11h-3V30h2z" fill="#0f172a"/>
+</svg>
+SVG;
+
+        return $this->response
+            ->raw($svg)
+            ->withHeader('content-type', 'image/svg+xml; charset=utf-8');
+    }
+}

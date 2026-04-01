@@ -27,6 +27,10 @@ require BASE_PATH . '/vendor/autoload.php';
 
 ClassLoader::init();
 
+// Keep tests isolated from real SMTP/network and avoid transport shutdown side effects.
+putenv('APP_ENV=testing');
+putenv('MAIL_MAILER=array');
+
 $container = require BASE_PATH . '/config/container.php';
 
 $container->get(ApplicationInterface::class);

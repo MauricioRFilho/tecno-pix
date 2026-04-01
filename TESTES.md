@@ -58,6 +58,10 @@ Use o mesmo padrão de script acima, alternando `account_id` em lote para simula
 O template do email de saque fica em:
 - `app/Mail/WithdrawNotificationMail.php`
 
+Validação simples sem cadastro externo:
+- O projeto já sobe com `MailHog` no `docker compose` e `MAIL_HOST=mailhog`/`MAIL_PORT=1025`.
+- Qualquer pessoa que clonar o repositório consegue validar e-mail localmente sem criar conta SMTP.
+
 Fluxo de validação:
 1. Criar saque imediato (`POST /account/{id}/balance/withdraw`) com `pix.key` do tipo email.
 2. Consultar Mailhog (`http://localhost:8025`) para verificar entrega.
