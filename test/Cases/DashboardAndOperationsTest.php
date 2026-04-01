@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace HyperfTest\Cases;
 
+use App\Command\ProcessScheduledWithdrawsCommand;
 use App\Model\Account;
 use App\Model\AccountWithdraw;
 use App\Model\AccountWithdrawPix;
 use App\Support\Uuid;
 use Hyperf\Testing\TestCase;
+
+use function Hyperf\Support\make;
 
 class DashboardAndOperationsTest extends TestCase
 {
@@ -76,6 +79,65 @@ class DashboardAndOperationsTest extends TestCase
             'type' => 'email',
             'key' => 'dashboard@example.com',
         ]);
+
+        Account::query()->where('id', $account->id)->delete();
+    }
+
+    public function testScheduledWithdrawCanFailWhenBalanceChangesBeforeProcessing(): void
+    {
+        $account = Account::query()->create([
+            'id' => Uuid::v4(),
+            'name' => 'Conta cenário saldo insuficiente',
+            'balance' => '100.00',
+        ]);
+
+        $scheduledResponse = $this->post(
+            sprintf('/account/%s/balance/withdraw', $account->id),
+            [
+                'method' => 'pix',
+                'amount' => 80,
+                'pix' => [
+                    'type' => 'email',
+                    'key' => 'dashboard@example.com',
+                ],
+                'schedule' => date('Y-m-d H:i:s', strtotime('+1 hour')),
+            ]
+        );
+
+        $scheduledResponse
+            ->assertStatus(202)
+            ->assertJsonPath('scheduled', true);
+
+        $scheduledId = (string) $scheduledResponse->json('id');
+        self::assertNotSame('', $scheduledId);
+
+        $immediateResponse = $this->post(
+            sprintf('/account/%s/balance/withdraw', $account->id),
+            [
+                'method' => 'pix',
+                'amount' => 30,
+                'pix' => [
+                    'type' => 'email',
+                    'key' => 'dashboard@example.com',
+                ],
+            ]
+        );
+
+        $immediateResponse->assertStatus(202);
+
+        $scheduledWithdraw = AccountWithdraw::query()->find($scheduledId);
+        self::assertInstanceOf(AccountWithdraw::class, $scheduledWithdraw);
+
+        $scheduledWithdraw->scheduled_for = date('Y-m-d H:i:s', strtotime('-1 minute'));
+        $scheduledWithdraw->save();
+
+        make(ProcessScheduledWithdrawsCommand::class)->handle();
+
+        $freshScheduledWithdraw = AccountWithdraw::query()->find($scheduledId);
+        self::assertInstanceOf(AccountWithdraw::class, $freshScheduledWithdraw);
+        self::assertTrue((bool) $freshScheduledWithdraw->error);
+        self::assertFalse((bool) $freshScheduledWithdraw->done);
+        self::assertSame('Insufficient balance at processing.', $freshScheduledWithdraw->error_reason);
 
         Account::query()->where('id', $account->id)->delete();
     }

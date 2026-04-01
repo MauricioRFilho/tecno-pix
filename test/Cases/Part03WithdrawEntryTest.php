@@ -141,4 +141,32 @@ class Part03WithdrawEntryTest extends TestCase
                 ],
             ]);
     }
+
+    public function testPart03AcceptsFutureScheduleWithDateTimeLocalFormat(): void
+    {
+        $account = Account::query()->create([
+            'id' => Uuid::v4(),
+            'name' => 'Conta teste Parte 3 - schedule',
+            'balance' => '500.00',
+        ]);
+
+        $response = $this->post(
+            sprintf('/account/%s/balance/withdraw', $account->id),
+            [
+                'method' => 'pix',
+                'amount' => 100,
+                'pix' => [
+                    'type' => 'email',
+                    'key' => 'cliente@example.com',
+                ],
+                'schedule' => date('Y-m-d\TH:i', strtotime('+1 hour')),
+            ]
+        );
+
+        $response
+            ->assertStatus(202)
+            ->assertJsonPath('scheduled', true);
+
+        Account::query()->where('id', $account->id)->delete();
+    }
 }

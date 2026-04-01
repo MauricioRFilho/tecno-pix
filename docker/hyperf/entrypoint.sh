@@ -89,6 +89,22 @@ stderr_logfile_maxbytes=0
 EOF
 fi
 
+if php /var/www/html/bin/hyperf.php list | grep -q "withdraw:process-scheduled"; then
+  SCHEDULED_WITHDRAW_POLL_SECONDS="${SCHEDULED_WITHDRAW_POLL_SECONDS:-15}"
+  cat <<EOF >> "$SUPERVISOR_CONFIG"
+
+[program:hyperf-withdraw-scheduler]
+command=/bin/sh -c "while true; do php /var/www/html/bin/hyperf.php withdraw:process-scheduled; sleep ${SCHEDULED_WITHDRAW_POLL_SECONDS}; done"
+directory=/var/www/html
+autostart=true
+autorestart=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+EOF
+fi
+
 if php /var/www/html/bin/hyperf.php list | grep -q "crontab:run"; then
   cat <<'EOF' >> "$SUPERVISOR_CONFIG"
 

@@ -90,6 +90,19 @@
     .msg.show { display: block; }
     .msg.ok { background: #e9f8ef; color: var(--ok); border: 1px solid #bbebcd; }
     .msg.err { background: #fff0ef; color: var(--err); border: 1px solid #f7c5c0; }
+    .schedule-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .schedule-actions button {
+      height: 32px;
+      font-size: 12px;
+      padding: 0 10px;
+      background: #475569;
+    }
+    .schedule-actions button:hover { background: #334155; }
     .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 10px; }
     table { width: 100%; border-collapse: collapse; min-width: 860px; background: #fff; }
     th, td {
@@ -159,13 +172,19 @@
               <option value="email">email</option>
             </select>
           </div>
-          <div class="field third">
-            <label for="withdraw-schedule">Agendamento (opcional)</label>
-            <input id="withdraw-schedule" placeholder="2026-04-01 12:30:00">
-          </div>
           <div class="field">
             <label for="withdraw-pix-key">Chave PIX</label>
             <input id="withdraw-pix-key" value="cliente@example.com" required>
+          </div>
+          <div class="field">
+            <label for="withdraw-schedule">Agendamento (opcional)</label>
+            <input id="withdraw-schedule" type="datetime-local" step="60">
+            <div class="schedule-actions">
+              <button type="button" data-schedule-add="5">Agora +5min</button>
+              <button type="button" data-schedule-add="15">Agora +15min</button>
+              <button type="button" data-schedule-add="60">Agora +1h</button>
+              <button type="button" data-schedule-clear="1">Limpar</button>
+            </div>
           </div>
           <div class="field">
             <button type="submit">Solicitar saque</button>
@@ -204,6 +223,7 @@
                 <th>Conta</th>
                 <th>Valor</th>
                 <th>PIX</th>
+                <th>Agendado para</th>
                 <th>Status</th>
                 <th>Erro</th>
                 <th>Criado em</th>
@@ -227,6 +247,7 @@
     const accountsTbody = document.getElementById('accounts-tbody');
     const operationsTbody = document.getElementById('operations-tbody');
     const withdrawAccount = document.getElementById('withdraw-account');
+    const withdrawSchedule = document.getElementById('withdraw-schedule');
     const refreshBtn = document.getElementById('refresh-btn');
 
     const showMsg = (el, type, text) => {
@@ -250,6 +271,37 @@
       } catch (_) {
       }
       return `Erro HTTP ${response.status}`;
+    };
+
+    const normalizeSchedule = (value) => {
+      const raw = String(value ?? '').trim();
+      if (raw === '') {
+        return '';
+      }
+
+      // Input datetime-local comes in browser local time.
+      // Backend is configured with America/Sao_Paulo too, so we keep local value.
+      if (raw.includes('T')) {
+        return `${raw.replace('T', ' ')}:00`;
+      }
+
+      return raw;
+    };
+
+    const toDateTimeLocalValue = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    const setScheduleFromNow = (minutesToAdd) => {
+      const date = new Date();
+      date.setSeconds(0, 0);
+      date.setMinutes(date.getMinutes() + minutesToAdd);
+      withdrawSchedule.value = toDateTimeLocalValue(date);
     };
 
     async function loadAccounts() {
@@ -295,12 +347,14 @@
             ? '<span class="chip ok">concluído</span>'
             : '<span class="chip wait">pendente</span>';
         const pix = item.pix ? `${escapeHtml(item.pix.type)}: ${escapeHtml(item.pix.key)}` : '-';
+        const scheduledFor = item.scheduled_for ? escapeHtml(item.scheduled_for) : '-';
         return `
           <tr>
             <td><code>${escapeHtml(item.id)}</code></td>
             <td><code>${escapeHtml(item.account_id)}</code></td>
             <td>${escapeHtml(item.amount)}</td>
             <td>${pix}</td>
+            <td>${scheduledFor}</td>
             <td>${statusChip}</td>
             <td>${escapeHtml(item.error_reason ?? '-')}</td>
             <td>${escapeHtml(item.created_at ?? '-')}</td>
@@ -348,7 +402,7 @@
           key: document.getElementById('withdraw-pix-key').value.trim(),
         },
       };
-      const schedule = document.getElementById('withdraw-schedule').value.trim();
+      const schedule = normalizeSchedule(withdrawSchedule.value);
       if (schedule !== '') {
         payload.schedule = schedule;
       }
@@ -364,13 +418,28 @@
         }
         const data = await response.json();
         showMsg(withdrawMsg, 'ok', `Saque aceito: ${data.id}`);
-        document.getElementById('withdraw-schedule').value = '';
+        withdrawSchedule.value = '';
         await loadOperations();
         setTimeout(loadOperations, 800);
       } catch (error) {
         showMsg(withdrawMsg, 'err', error.message);
       }
     });
+
+    for (const button of document.querySelectorAll('button[data-schedule-add]')) {
+      button.addEventListener('click', () => {
+        const add = Number(button.getAttribute('data-schedule-add') || '0');
+        setScheduleFromNow(add);
+        showMsg(withdrawMsg, 'ok', `Agendamento preenchido para agora +${add}min.`);
+      });
+    }
+
+    for (const button of document.querySelectorAll('button[data-schedule-clear]')) {
+      button.addEventListener('click', () => {
+        withdrawSchedule.value = '';
+        showMsg(withdrawMsg, 'ok', 'Agendamento limpo.');
+      });
+    }
 
     refreshBtn.addEventListener('click', async () => {
       try {
