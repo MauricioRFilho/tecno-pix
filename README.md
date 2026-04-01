@@ -100,3 +100,7 @@ Quando excedido, a API retorna `429` com código `rate_limit_exceeded`.
 ## Planejamento técnico
 
 Detalhamento completo em [PLANEJAMENTO.md](./PLANEJAMENTO.md).
+
+## Guia de testes
+
+Cenários automatizados, adversariais e de stress em [TESTES.md](./TESTES.md).

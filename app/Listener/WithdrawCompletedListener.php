@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Listener;
 
 use App\Event\WithdrawCompletedEvent;
+use App\Mail\WithdrawNotificationMail;
 use App\Method\Pix\PixEmailValidator;
 use App\Model\AccountWithdraw;
 use FriendsOfHyperf\Mail\Contract\Factory as MailFactory;
@@ -51,8 +52,7 @@ class WithdrawCompletedListener implements ListenerInterface
         }
 
         try {
-            $body = sprintf(
-                "Saque PIX concluido\nwithdraw_id: %s\naccount_id: %s\namount: %s\npix_type: %s\npix_key: %s\n",
+            $mail = new WithdrawNotificationMail(
                 (string) $withdraw->id,
                 (string) $withdraw->account_id,
                 (string) $withdraw->amount,
@@ -62,7 +62,7 @@ class WithdrawCompletedListener implements ListenerInterface
 
             $this->mailFactory
                 ->mailer()
-                ->raw($body, static function ($message) use ($recipient, $withdraw): void {
+                ->html($mail->toHtml(), static function ($message) use ($recipient, $withdraw): void {
                     $message
                         ->to($recipient)
                         ->subject(sprintf('Saque PIX concluido %s', (string) $withdraw->id));

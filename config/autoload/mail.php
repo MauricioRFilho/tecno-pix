@@ -5,7 +5,7 @@ declare(strict_types=1);
 use function Hyperf\Support\env;
 
 return [
-    'default' => env('MAIL_MAILER', 'array'),
+    'default' => env('MAIL_MAILER', 'smtp'),
     'mailers' => [
         'smtp' => [
             'transport' => 'smtp',
