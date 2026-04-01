@@ -4,8 +4,6 @@
 
 API REST para saque PIX imediato e agendado com Hyperf 3, MySQL, Redis e Mailhog.
 
-![Favicon Tecno Pix](docs/assets/tecnopix-favicon.svg)
-
 ## Visão Geral Técnica
 
 O projeto entrega um fluxo completo de saque PIX com:
