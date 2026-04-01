@@ -4,8 +4,6 @@
 
 Este documento explica, em linguagem simples, o que foi construído no case técnico.
 
-![Favicon Tecno Pix](assets/tecnopix-favicon.svg)
-
 ## O que foi entregue
 
 Foi desenvolvida uma solução de saque PIX com:
@@ -41,6 +39,25 @@ docker compose up --build -d
 - Escolha uma conta.
 - Solicite um saque PIX.
 - Veja a operação aparecer no histórico.
+
+## Exemplo de email de sucesso
+
+Quando o saque é concluído, o sistema gera um email de confirmação (capturado no Mailhog em ambiente local), com informações como:
+- ID do saque.
+- Data e hora do processamento.
+- Valor sacado.
+- Chave PIX utilizada.
+
+Exemplo:
+
+```html
+<h1>Saque PIX concluido</h1>
+<p>withdraw_id: 8a5bf2a0-1f35-4d4f-98f2-16cbf8d8c0a1</p>
+<p>processed_at: 2026-04-01 14:35:22</p>
+<p>amount: 150.75</p>
+<p>pix_type: email</p>
+<p>pix_key: cliente@example.com</p>
+```
 
 ## Decisões importantes (em termos simples)
 

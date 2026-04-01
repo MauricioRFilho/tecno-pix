@@ -68,6 +68,20 @@ Payload exemplo de saque:
 }
 ```
 
+## Exemplo de Email de Sucesso
+
+Exemplo de conteúdo HTML enviado após conclusão do saque:
+
+```html
+<h1>Saque PIX concluido</h1>
+<p>withdraw_id: 8a5bf2a0-1f35-4d4f-98f2-16cbf8d8c0a1</p>
+<p>account_id: 9de9f4da-2de0-4aaf-9f79-30d34b590312</p>
+<p>processed_at: 2026-04-01 14:35:22</p>
+<p>amount: 150.75</p>
+<p>pix_type: email</p>
+<p>pix_key: cliente@example.com</p>
+```
+
 ## Decisões e Porquês
 
 1. Bootstrap automático de banco (`migrate` + `db:seed` no startup do app)
@@ -126,7 +140,7 @@ docker compose exec mysql mysql -u root -psecret tecno_pix -e "SELECT id, accoun
 docker compose exec mysql mysql -u root -psecret tecno_pix -e "SELECT account_withdraw_id, type, `key` FROM account_withdraw_pix ORDER BY account_withdraw_id DESC LIMIT 10;"
 ```
 
-Mais detalhes de testes em [TESTES.md](./TESTES.md).
+Mais detalhes de testes em [TESTES.md](docs/TESTES.md).
 
 ## Operação e Observabilidade
 
@@ -151,6 +165,6 @@ Resposta quando excedido:
 
 ## Referências
 
-- Planejamento técnico completo: [PLANEJAMENTO.md](./PLANEJAMENTO.md)
-- Guia de testes: [TESTES.md](./TESTES.md)
+- Planejamento técnico completo: [PLANEJAMENTO.md](docs/PLANEJAMENTO.md)
+- Guia de testes: [TESTES.md](docs/TESTES.md)
 - Documento não técnico (RH): [docs/README_RH.md](docs/README_RH.md)

@@ -117,4 +117,28 @@ class Part03WithdrawEntryTest extends TestCase
                 ],
             ]);
     }
+
+    public function testPart03RejectsPixTypeDifferentFromEmail(): void
+    {
+        $response = $this->post(
+            sprintf('/account/%s/balance/withdraw', Uuid::v4()),
+            [
+                'method' => 'pix',
+                'amount' => 100,
+                'pix' => [
+                    'type' => 'cpf',
+                    'key' => '12345678901',
+                ],
+            ]
+        );
+
+        $response
+            ->assertStatus(422)
+            ->assertJsonPath('message', 'The given data was invalid.')
+            ->assertJsonStructure([
+                'errors' => [
+                    'pix.type',
+                ],
+            ]);
+    }
 }

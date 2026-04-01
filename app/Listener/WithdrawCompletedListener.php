@@ -55,6 +55,7 @@ class WithdrawCompletedListener implements ListenerInterface
             $mail = new WithdrawNotificationMail(
                 (string) $withdraw->id,
                 (string) $withdraw->account_id,
+                $withdraw->processed_at?->format('Y-m-d H:i:s') ?? date('Y-m-d H:i:s'),
                 (string) $withdraw->amount,
                 (string) $withdraw->pix->type,
                 (string) $withdraw->pix->key

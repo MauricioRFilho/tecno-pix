@@ -46,7 +46,7 @@ class WithdrawRequest
             $errors['pix'][] = 'The pix field is required.';
         } else {
             $pixType = $pix['type'] ?? null;
-            $allowedTypes = ['cpf', 'cnpj', 'email', 'phone', 'random'];
+            $allowedTypes = ['email'];
             if (! is_string($pixType) || $pixType === '') {
                 $errors['pix.type'][] = 'The pix.type field is required.';
             } elseif (! in_array($pixType, $allowedTypes, true)) {

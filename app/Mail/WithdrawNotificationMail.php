@@ -11,6 +11,7 @@ class WithdrawNotificationMail extends Mailable
     public function __construct(
         private readonly string $withdrawId,
         private readonly string $accountId,
+        private readonly string $processedAt,
         private readonly string $amount,
         private readonly string $pixType,
         private readonly string $pixKey
@@ -27,9 +28,10 @@ class WithdrawNotificationMail extends Mailable
     public function toHtml(): string
     {
         return sprintf(
-            '<h1>Saque PIX concluido</h1><p>withdraw_id: %s</p><p>account_id: %s</p><p>amount: %s</p><p>pix_type: %s</p><p>pix_key: %s</p>',
+            '<h1>Saque PIX concluido</h1><p>withdraw_id: %s</p><p>account_id: %s</p><p>processed_at: %s</p><p>amount: %s</p><p>pix_type: %s</p><p>pix_key: %s</p>',
             htmlspecialchars($this->withdrawId, ENT_QUOTES, 'UTF-8'),
             htmlspecialchars($this->accountId, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($this->processedAt, ENT_QUOTES, 'UTF-8'),
             htmlspecialchars($this->amount, ENT_QUOTES, 'UTF-8'),
             htmlspecialchars($this->pixType, ENT_QUOTES, 'UTF-8'),
             htmlspecialchars($this->pixKey, ENT_QUOTES, 'UTF-8')
